@@ -16,30 +16,54 @@ $this->setFrameMode(true);
 <?if($arParams["DISPLAY_TOP_PAGER"]):?>
 	<?=$arResult["NAV_STRING"]?><br />
 <?endif;?>
+<?$i=0?>  <!-- индекс важной новости -->
 <?foreach($arResult["ITEMS"] as $arItem):?>
+<?if ($i > 0):?>
+
     <article class="news news--wide">
         <div class="news__publication-info">
+<?else:?>
+	<?if($arParams["DISPLAY_PICTURE"]!="N" && is_array($arItem["PREVIEW_PICTURE"])):?>
+            <?if(!$arParams["HIDE_LINK_WHEN_NO_DETAIL"] || ($arItem["DETAIL_TEXT"] && $arResult["USER_HAVE_ACCESS"])):?>
+                <article class="news-important" style="background-image: url(<?=$arItem["PREVIEW_PICTURE"]["SRC"]?>);">
+            <?else:?>
+            <?endif;?>
+        <?endif?>
+        <a href="<?echo $arItem["DETAIL_PAGE_URL"]?>" class="news-important__link">
+        	<h2 class="news-important__title">
+<?endif;?>
 	<?
 	$this->AddEditAction($arItem['ID'], $arItem['EDIT_LINK'], CIBlock::GetArrayByID($arItem["IBLOCK_ID"], "ELEMENT_EDIT"));
 	$this->AddDeleteAction($arItem['ID'], $arItem['DELETE_LINK'], CIBlock::GetArrayByID($arItem["IBLOCK_ID"], "ELEMENT_DELETE"), array("CONFIRM" => GetMessage('CT_BNL_ELEMENT_DELETE_CONFIRM')));
 	?>
+	<?if ($i > 0):?>
     <a href="<?echo $arItem["DETAIL_PAGE_URL"]?>" class="news__link" id="<?=$this->GetEditAreaId($arItem['ID']);?>">
         <h3 class="news__title content-block">
+        	<?endif;?>
             <?if($arParams["DISPLAY_NAME"]!="N" && $arItem["NAME"]):?>
                 <?if(!$arParams["HIDE_LINK_WHEN_NO_DETAIL"] || ($arItem["DETAIL_TEXT"] && $arResult["USER_HAVE_ACCESS"])):?>
-                    <mark><?echo $arItem["NAME"]?></mark>
+                    <?if ($i > 0):?>
+                    <mark>
+                    <?endif;?>
+                    	<?echo $arItem["NAME"]?>
+                    <?if ($i > 0):?>
+                    </mark>
+                    <?endif;?>
                 <?else:?>
                     <?echo $arItem["NAME"]?>
                 <?endif;?>
             <?endif;?>
+            <?if ($i == 0):?>
+            </h2>
+      </a>
+      		<?endif;?>
             <?if($arParams["DISPLAY_PREVIEW_TEXT"]!="N" && $arItem["PREVIEW_TEXT"]):?>
+            <?if ($i > 0):?>
                 <span>
 			<?echo $arItem["PREVIEW_TEXT"];?>
             </span>
             <?endif;?>
-            <span>
-
-            </span>
+            <?endif;?>
         </h3>
     </a>
 
@@ -47,19 +71,29 @@ $this->setFrameMode(true);
 			<span class="news-date-time"><?echo $arItem["DISPLAY_ACTIVE_FROM"]?></span>
 		<?endif?>
 
+		<?if ($i > 0):?>
             <time class="news__publication-date" datetime="2019-10-24">
                 <?=strtolower(FormatDate("d F Y", MakeTimeStamp($arItem["DATE_CREATE"]))) ?>
             </time>
-        </div>
+        
+		</div>
+		
         <?if($arParams["DISPLAY_PICTURE"]!="N" && is_array($arItem["PREVIEW_PICTURE"])):?>
             <?if(!$arParams["HIDE_LINK_WHEN_NO_DETAIL"] || ($arItem["DETAIL_TEXT"] && $arResult["USER_HAVE_ACCESS"])):?>
-                <div class="news__illustration" style="background-image: url(<?=$arItem["PREVIEW_PICTURE"]["SRC"]?>);">
+
+                <div class="news__illustration" style="background-image: url(<?=$arItem["PREVIEW_PICTURE"]["SRC"]?>);"></div>
             <?else:?>
             <?endif;?>
         <?endif?>
+        <?endif;?>
+        <?if ($i == 0):?>
+        <time class="news-important__publication-date" datetime="2019-10-24">
+        	<?=strtolower(FormatDate("d F Y", MakeTimeStamp($arItem["DATE_CREATE"]))) ?>
+        </time>
+        <?endif;?>
 
 
-        </div>
+        
 		<?if($arParams["DISPLAY_PICTURE"]!="N" && is_array($arItem["PREVIEW_PICTURE"])):?>
 
 		<?endif?>
@@ -74,8 +108,8 @@ $this->setFrameMode(true);
 			<?endif?>
 
 		<?endforeach;?>
-
     </article>
+    <?$i++?>
 <?endforeach;?>
 <?if($arParams["DISPLAY_BOTTOM_PAGER"]):?>
 	<?=$arResult["NAV_STRING"]?>
